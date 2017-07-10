@@ -1,22 +1,22 @@
-# Minecraft Package manager
-
+# MDPM - Minecraft Data Pack Manager
 This is a package manager for Minecraft that installs Data Packs to your worlds.
 
 ## Installation
 ```bash
 # With NPM
-npm install mcpm -g
+npm install mdpm -g
 
 # With Yarn
-yarn global add mcpm
+yarn global add mdpm
 ```
 
 ## Usage
+For now, there is no Official Repository, so you have to use direct links to your packages.
 ```bash
-mcpm install <world> <packages...>
+mdpm install <world> <packages...>
 
 # Example: Will install the package found at https://path/to/my/pack in the world My World
-mcpm install "My World" "https://path/to/my/pack"
+mdpm install "My World" "https://path/to/my/pack"
 ```
 This will install the packages as a data pack for the given world.  
 Note: You can install more than one package at once.
@@ -24,10 +24,10 @@ Note: You can install more than one package at once.
 ## Help
 ```
 # General help
-mcpm --help
+mdpm --help
 
 # Install help
-mcpm install --help
+mdpm install --help
 ```
 
 ## Resources
