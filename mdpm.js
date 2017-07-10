@@ -9,9 +9,9 @@ program
 	.command('install <world> <packages...>', 'Install Minecraft Data Packs to a world')
 	.parse(process.argv);
 
-if (program.args){
+if (program.args && program.args[0] !== 'install'){
 	console.log('Did you mean ' + chalk.grey('mdpm install') + '?')
-} else {
+} else if (!program.args) {
 	console.log([
 		'',
 		'  Usage: mdpm [options] [command]',

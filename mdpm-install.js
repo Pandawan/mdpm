@@ -1,13 +1,18 @@
 #!/usr/bin/env node
 
 const path = require('path');
+
 const chalk = require('chalk');
 const program = require('commander');
-const mcutil = require('./util/mcutil');
-const osutil = require('./util/osutil');
 const dl = require('download');
 const decompress = require('decompress');
 
+const mcutil = require('./util/mcutil');
+const osutil = require('./util/osutil');
+const output = require('./util/output');
+const mcpack = require('./mcpack');
+
+// Setup cli program
 program._name = 'mdpm install';
 
 program
@@ -26,15 +31,15 @@ let parameters = {
 
 // Check that a world was given
 if (!parameters.world) {
-	console.error(chalk.red('error') + ' The world name is required!');
-	console.log(chalk.blue('info') + ' Use --help for help.')
+	output.error('The world name is required!');
+	output.info('Use --help for help.')
 	process.exit(1);
 }
 
 // Check that at least one package was given
 if (!parameters.packages || parameters.packages.length === 0) {
-	console.error(chalk.red('error') + ' Missing list of data packs to install!');
-	console.log(chalk.blue('info') + ' Use --help for help.')
+	output.error('Missing list of data packs to install!');
+	output.info('Use --help for help.')
 	process.exit(1);
 }
 
@@ -50,41 +55,65 @@ function checkForWorld(callback) {
 	osutil.checkDirectory(worldPath, function (success, err) {
 		if (err) {
 			// Other error
-			console.error(chalk.red('error') + ' ' + err);
+			output.error(err);
 			process.exit(1);
 		}
 		else if (!success) {
 			// World doesn't exist
-			console.error(chalk.red('error') + ' World \"' + parameters.world + '\" does not exist!');
+			output.error('World \"' + parameters.world + '\" does not exist!');
 			process.exit(1);
 		}
 		else {
 			// Success
-			console.log(chalk.green('success') + ' Found World \"' + parameters.world + '\" at ' + worldPath);
+			output.success('Found World \"' + parameters.world + '\" at ' + worldPath);
 			callback();
 		}
 	});
 }
 
 function fetchPackages() {
+	mcpack.createIfNot(parameters.world);
+
 	let worldPath = path.join(mcutil.getWorld(parameters.world), 'data');
-	parameters.packages.forEach(function (e) {
+
+	let newPackages = [];
+
+	parameters.packages.forEach(function (e, index, array) {
 		osutil.checkValidPath(e, function (result, msg) {
 			if (!result) {
-				console.error(chalk.red('error') + ' Could not install ' + chalk.cyan.underline(e) + '. ' + msg);
+				output.error('Could not install ' + chalk.cyan.underline(e) + '. ' + msg);
 			} else {
 				if (msg === 'download') {
 					dl(result, worldPath, { extract: true }).then(() => {
-						console.log(chalk.green('success') + ' Installed pack ' + chalk.cyan.underline(e) + '.');
+						output.success('Installed pack ' + chalk.cyan.underline(e) + '.');
+						newPackages.push({ path: result, type: 'url' });
+
+						// Last element
+						if (index === array.length - 1) {
+							mcpack.addPackagesToFile(parameters.world, newPackages);
+						}
+
 					}).catch((err) => {
-						console.log(chalk.red('error') + ' ' + err.response.body);
+						if (err.response)
+							output.error(err.response.body);
+						else
+							output.error(err);
 					});
 				}
 				else if (msg === 'local') {
 					decompress(result, worldPath).then(files => {
-						console.log(chalk.green('success') + ' Installed pack ' + chalk.cyan.underline(e) + '.');
+						output.success('Installed pack ' + chalk.cyan.underline(e) + '.');
+						newPackages.push({ path: result, type: 'local' });
+
+						// Last element
+						if (index === array.length - 1) {
+							mcpack.addPackagesToFile(parameters.world, newPackages);
+						}
 					}).catch((err) => {
-						console.log(chalk.red('error') + ' ' + err.response.body);
+						if (err.response)
+							output.error(err.response.body);
+						else
+							output.error(err);
 					});
 				}
 			}

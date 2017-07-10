@@ -14,7 +14,7 @@
 	"author": "PandawanFr",
 	"license": "MIT",
 	"repository": "git+https://github.com/PandawanFr/mdpm.git",
-	"bugs":{
+	"bugs": {
 		"url": "https://github.com/PandawanFr/mdpm/issues"
 	},
 	"homepage": "https://github.com/PandawanFr/mdpm#readme",
