@@ -1,0 +1,32 @@
+{
+	"name": "mdpm",
+	"version": "0.0.1",
+	"description": "A small package manager for Minecraft Data Packs.",
+	"main": "mdpm.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"Minecraft",
+		"package",
+		"function"
+	],
+	"author": "PandawanFr",
+	"license": "MIT",
+	"repository": "git+https://github.com/PandawanFr/mdpm.git",
+	"bugs":{
+		"url": "https://github.com/PandawanFr/mdpm/issues"
+	},
+	"homepage": "https://github.com/PandawanFr/mdpm#readme",
+	"bin": {
+		"mdpm": "./mdpm.js"
+	},
+	"dependencies": {
+		"chalk": "^2.0.1",
+		"commander": "^2.11.0",
+		"decompress": "^4.2.0",
+		"download": "^6.2.5",
+		"home-dir": "^1.0.0",
+		"pkginfo": "^0.4.0"
+	}
+}
