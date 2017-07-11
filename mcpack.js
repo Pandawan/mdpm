@@ -26,7 +26,7 @@ function createIfNot(world) {
 function modifyPackFile(world, obj) {
 	let pathToFile = path.join(mcutil.getWorld(world), 'data/mcpack.json');
 
-	fs.writeFile(pathToFile, JSON.stringify(obj), 'utf8', function(err) {
+	fs.writeFile(pathToFile, JSON.stringify(obj, null, '\t'), 'utf8', function(err) {
 		if(err) {
 			output.error(err);
 			process.exit(1);
@@ -84,11 +84,28 @@ function getMCPack(world, callback) {
 	})
 }
 
+function hasPackage (pkg, world, callback) {
+	getMCPack(world, (json) => {
+		// Empty Packages Array
+		if (json.packages.length === 0 || !json.packages) {
+			callback();
+		}
+		// Make sure it's not already there
+		else {
+			json.packages.forEach((e) => {
+				if (pkg.path !== e.path && pkg.type !== e.type){
+					callback();
+				}
+			});
+		}
+	});
+}
 
 
 module.exports = {
 	createIfNot,
 	modifyPackFile,
 	addPackagesToFile,
-	getMCPack
+	getMCPack,
+	hasPackage
 }

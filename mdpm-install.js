@@ -74,8 +74,6 @@ function checkForWorld(callback) {
 function fetchPackages() {
 	mcpack.createIfNot(parameters.world);
 
-	let worldPath = path.join(mcutil.getWorld(parameters.world), 'data');
-
 	let newPackages = [];
 
 	// Loop through every package
@@ -87,8 +85,11 @@ function fetchPackages() {
 			} else {
 				// Download Packages Online
 				if (msg === 'download') {
-					downloadPackage(e, worldPath, () => {
-						newPackages.push({ path: url, type: 'url' });
+					downloadPackage(result, parameters.world, () => {
+						var pkgObj = { path: result, type: 'url' };
+						mcpack.hasPackage(pkgObj, parameters.world, () => {
+							newPackages.push(pkgObj);
+						});
 
 						// Save packages to mcpack.json on last element
 						if (index === array.length - 1) {
@@ -98,8 +99,11 @@ function fetchPackages() {
 				}
 				// Extract Packages Local
 				else if (msg === 'local') {
-					extractLocal(e, worldPath, () => {
-						newPackages.push({ path: result, type: 'local' });
+					extractLocal(result, parameters.world, () => {
+						var pkgObj = { path: result, type: 'local' };
+						mcpack.hasPackage(pkgObj, parameters.world, () => {
+							newPackages.push(pkgObj);
+						});
 
 						// Save packages to mcpack.json on last element
 						if (index === array.length - 1) {
@@ -113,7 +117,9 @@ function fetchPackages() {
 }
 
 function downloadPackage (pkg, world, callback) {
-	dl(pkg, world, { extract: true }).then(() => {
+	let worldPath = path.join(mcutil.getWorld(world), 'data');
+
+	dl(pkg, worldPath, { extract: true }).then(() => {
 		output.success('Installed pack ' + chalk.cyan.underline(pkg) + '.');
 		callback();
 
@@ -126,7 +132,9 @@ function downloadPackage (pkg, world, callback) {
 }
 
 function extractLocal(pkg, world, callback) {
-	decompress(pkg, world).then((files) => {
+	let worldPath = path.join(mcutil.getWorld(world), 'data');
+
+	decompress(pkg, worldPath).then((files) => {
 		output.success('Installed pack ' + chalk.cyan.underline(pkg) + '.');
 		callback();
 
