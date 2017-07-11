@@ -54,11 +54,33 @@ function addPackagesToFile(world, packs) {
 			process.exit(1);
 		}
 
-		packs.forEach(function (e) {
+		packs.forEach((e) => {
 			json.packages.push(e);
 		});
 
 		modifyPackFile(world, json);
+	})
+}
+
+function getMCPack(world, callback) {
+	let pathToFile = path.join(mcutil.getWorld(world), 'data/mcpack.json');
+	fs.readFile(pathToFile, 'utf8', function (err, data) {
+		if (err) {
+			output.error('Could not access mcpack.json. ' + err);
+			process.exit(1);
+		}
+
+		var json;
+
+		try {
+			json = JSON.parse(data);
+		}
+		catch(e) {
+			output.error('Could not read mcpack.json. ' + e);
+			process.exit(1);
+		}
+
+		callback(json);
 	})
 }
 
@@ -67,5 +89,6 @@ function addPackagesToFile(world, packs) {
 module.exports = {
 	createIfNot,
 	modifyPackFile,
-	addPackagesToFile
+	addPackagesToFile,
+	getMCPack
 }

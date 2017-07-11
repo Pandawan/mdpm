@@ -78,47 +78,68 @@ function fetchPackages() {
 
 	let newPackages = [];
 
+	// Loop through every package
 	parameters.packages.forEach(function (e, index, array) {
+		// Make sure they have a valid URL/Local path
 		osutil.checkValidPath(e, function (result, msg) {
 			if (!result) {
 				output.error('Could not install ' + chalk.cyan.underline(e) + '. ' + msg);
 			} else {
+				// Download Packages Online
 				if (msg === 'download') {
-					dl(result, worldPath, { extract: true }).then(() => {
-						output.success('Installed pack ' + chalk.cyan.underline(e) + '.');
-						newPackages.push({ path: result, type: 'url' });
+					downloadPackage(e, worldPath, () => {
+						newPackages.push({ path: url, type: 'url' });
 
-						// Last element
+						// Save packages to mcpack.json on last element
 						if (index === array.length - 1) {
-							mcpack.addPackagesToFile(parameters.world, newPackages);
+							doneInstall(newPackages);
 						}
-
-					}).catch((err) => {
-						if (err.response)
-							output.error(err.response.body);
-						else
-							output.error(err);
 					});
 				}
+				// Extract Packages Local
 				else if (msg === 'local') {
-					decompress(result, worldPath).then(files => {
-						output.success('Installed pack ' + chalk.cyan.underline(e) + '.');
+					extractLocal(e, worldPath, () => {
 						newPackages.push({ path: result, type: 'local' });
 
-						// Last element
+						// Save packages to mcpack.json on last element
 						if (index === array.length - 1) {
-							mcpack.addPackagesToFile(parameters.world, newPackages);
+							doneInstall(newPackages);
 						}
-					}).catch((err) => {
-						if (err.response)
-							output.error(err.response.body);
-						else
-							output.error(err);
 					});
 				}
 			}
 		});
 	});
+}
+
+function downloadPackage (pkg, world, callback) {
+	dl(pkg, world, { extract: true }).then(() => {
+		output.success('Installed pack ' + chalk.cyan.underline(pkg) + '.');
+		callback();
+
+	}).catch((err) => {
+		if (err.response)
+		output.error(err.response.body);
+		else
+		output.error(err);
+	});
+}
+
+function extractLocal(pkg, world, callback) {
+	decompress(pkg, world).then((files) => {
+		output.success('Installed pack ' + chalk.cyan.underline(pkg) + '.');
+		callback();
+
+	}).catch((err) => {
+		if (err.response)
+		output.error(err.response.body);
+		else
+		output.error(err);
+	});
+}
+
+function doneInstall (packages) {
+	mcpack.addPackagesToFile(parameters.world, packages);
 }
 
 function usage() {
